@@ -71,8 +71,9 @@ const Formulario = () => {
 
   useEffect(() => {
     if (currentCurrency !== '' && currentCryptoCurrency !== '') {
-      getConversionCurrencies().then();
+      getConversionCurrencies();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCurrency, currentCryptoCurrency]);
 
   useEffect(() => {
