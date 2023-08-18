@@ -1,7 +1,7 @@
 import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import {ICryptoCurrency} from '../models/ICryptoCurrency';
 import {ICurrency} from '../models/ICurrency';
 import api from '../api/api';
@@ -51,20 +51,29 @@ const Formulario = (props: FomularioType) => {
   } = props;
   const [cryptoCurrencies, setCryptoCurrencies] = useState<ICurrency[]>([]);
   const [isEnabledBtnCotizar, setIsEnabledBtnCotizar] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchCryptoCurrencies = async () => {
-    const response = await api.get(getCryptoCurenciesPath);
-    if (response.status === 200) {
-      const cryptoResponse = response.data as ICryptoCurrency;
-      const defaultValue: ICurrency[] = [{label: '- Seleccione -', value: ''}];
-      const resultMapped = cryptoResponse.Data.map(item => {
-        const currency: ICurrency = {
-          label: item.CoinInfo.FullName,
-          value: item.CoinInfo.Name,
-        };
-        return currency;
-      });
-      setCryptoCurrencies([...defaultValue, ...resultMapped]);
+    try {
+      setIsLoading(true);
+      const response = await api.get(getCryptoCurenciesPath);
+      if (response.status === 200) {
+        const cryptoResponse = response.data as ICryptoCurrency;
+        const defaultValue: ICurrency[] = [
+          {label: '- Seleccione -', value: ''},
+        ];
+        const resultMapped = cryptoResponse.Data.map(item => {
+          const currency: ICurrency = {
+            label: item.CoinInfo.FullName,
+            value: item.CoinInfo.Name,
+          };
+          return currency;
+        });
+        setCryptoCurrencies([...defaultValue, ...resultMapped]);
+      }
+    } catch (ex) {
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,22 +110,26 @@ const Formulario = (props: FomularioType) => {
       </Picker>
 
       <Text style={styles.label}>Criptomoneda</Text>
-      <Picker
-        selectedValue={currentCryptoCurrency}
-        onValueChange={(itemValue, itemIndex) => {
-          setCurrentCryptoCurrency(itemValue);
-          setIsEnabledBtnCotizar(currentCurrency !== '' && itemValue !== '');
-        }}>
-        {cryptoCurrencies.map((item, index) => {
-          return (
-            <Picker.Item
-              key={`crypto_${index}`}
-              label={item.label}
-              value={item.value}
-            />
-          );
-        })}
-      </Picker>
+      {isLoading ? (
+        <ActivityIndicator size={'large'} color={'#5E49E2'} />
+      ) : (
+        <Picker
+          selectedValue={currentCryptoCurrency}
+          onValueChange={(itemValue, itemIndex) => {
+            setCurrentCryptoCurrency(itemValue);
+            setIsEnabledBtnCotizar(currentCurrency !== '' && itemValue !== '');
+          }}>
+          {cryptoCurrencies.map((item, index) => {
+            return (
+              <Picker.Item
+                key={`crypto_${index}`}
+                label={item.label}
+                value={item.value}
+              />
+            );
+          })}
+        </Picker>
+      )}
       <TouchableHighlight
         style={
           isEnabledBtnCotizar
