@@ -5,12 +5,17 @@ import {StyleSheet, Text, View} from 'react-native';
 import {ICryptoCurrency} from '../models/ICryptoCurrency';
 import {ICurrency} from '../models/ICurrency';
 import api from '../api/api';
+import {getCryptoCurenciesPath} from '../api/pathApi';
+import {TouchableHighlight} from 'react-native';
 
-const getCryptoCurenciesPath = '/data/top/mktcapfull?limit=10&tsym=USD';
-
-const getConversionPath = '/data/price';
-const fromCurrencyParam = 'fsym';
-const intoCurrencyParam = 'tsyms';
+type FomularioType = {
+  currentCurrency: string;
+  currentCryptoCurrency: string;
+  setCurrentCurrency: React.Dispatch<React.SetStateAction<string>>;
+  setCurrentCryptoCurrency: React.Dispatch<React.SetStateAction<string>>;
+  isEnablebAPIConversion: boolean;
+  setIsEnablebAPIConversion: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 const currencies: ICurrency[] = [
   {
@@ -35,10 +40,17 @@ const currencies: ICurrency[] = [
   },
 ];
 
-const Formulario = () => {
-  const [currentCurrency, setCurrentCurrency] = useState('');
+const Formulario = (props: FomularioType) => {
+  const {
+    currentCurrency,
+    currentCryptoCurrency,
+    setCurrentCurrency,
+    setCurrentCryptoCurrency,
+    isEnablebAPIConversion,
+    setIsEnablebAPIConversion,
+  } = props;
   const [cryptoCurrencies, setCryptoCurrencies] = useState<ICurrency[]>([]);
-  const [currentCryptoCurrency, setCurrentCryptoCurrency] = useState('');
+  const [isEnabledBtnCotizar, setIsEnabledBtnCotizar] = useState(false);
 
   const fetchCryptoCurrencies = async () => {
     const response = await api.get(getCryptoCurenciesPath);
@@ -56,29 +68,15 @@ const Formulario = () => {
     }
   };
 
-  const getConversionCurrencies = async () => {
-    const response = await api.get(getConversionPath, {
-      params: {
-        [fromCurrencyParam]: currentCurrency,
-        [intoCurrencyParam]: currentCryptoCurrency,
-      },
-    });
-    if (response.status === 200) {
-      const result = response.data as {[key: string]: string};
-      console.log(result[currentCryptoCurrency]);
-    }
-  };
-
-  useEffect(() => {
-    if (currentCurrency !== '' && currentCryptoCurrency !== '') {
-      getConversionCurrencies();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentCurrency, currentCryptoCurrency]);
-
   useEffect(() => {
     fetchCryptoCurrencies();
   }, []);
+
+  useEffect(() => {
+    setIsEnabledBtnCotizar(
+      currentCurrency !== '' && currentCryptoCurrency !== '',
+    );
+  }, [currentCurrency, currentCryptoCurrency]);
 
   return (
     <View>
@@ -87,10 +85,17 @@ const Formulario = () => {
         selectedValue={currentCurrency}
         onValueChange={(itemValue, itemIndex) => {
           setCurrentCurrency(itemValue);
+          setIsEnabledBtnCotizar(
+            itemValue !== '' && currentCryptoCurrency !== '',
+          );
         }}>
         {currencies.map((item, index) => {
           return (
-            <Picker.Item key={index} label={item.label} value={item.value} />
+            <Picker.Item
+              key={`coin_${index}`}
+              label={item.label}
+              value={item.value}
+            />
           );
         })}
       </Picker>
@@ -100,13 +105,31 @@ const Formulario = () => {
         selectedValue={currentCryptoCurrency}
         onValueChange={(itemValue, itemIndex) => {
           setCurrentCryptoCurrency(itemValue);
+          setIsEnabledBtnCotizar(currentCurrency !== '' && itemValue !== '');
         }}>
         {cryptoCurrencies.map((item, index) => {
           return (
-            <Picker.Item key={index} label={item.label} value={item.value} />
+            <Picker.Item
+              key={`crypto_${index}`}
+              label={item.label}
+              value={item.value}
+            />
           );
         })}
       </Picker>
+      <TouchableHighlight
+        style={
+          isEnabledBtnCotizar
+            ? styles.btnCotizarEnabled
+            : styles.btnCotizarDisabled
+        }
+        disabled={!isEnabledBtnCotizar}
+        onPress={() => {
+          setIsEnablebAPIConversion(true);
+          setIsEnabledBtnCotizar(false);
+        }}>
+        <Text style={styles.btnTextoCotizar}>Cotizar</Text>
+      </TouchableHighlight>
     </View>
   );
 };
@@ -114,8 +137,25 @@ const Formulario = () => {
 const styles = StyleSheet.create({
   label: {
     fontFamily: 'Lato-Black',
-    fontTransform: 'uppercase',
+    textTransform: 'uppercase',
     fontSize: 22,
+  },
+  btnCotizarEnabled: {
+    backgroundColor: '#5E49E2',
+    padding: 10,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  btnCotizarDisabled: {
+    backgroundColor: 'gray',
+    padding: 10,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  btnTextoCotizar: {
+    fontFamily: 'Lato-Black',
+    color: '#FFF',
+    textTransform: 'uppercase',
   },
 });
 

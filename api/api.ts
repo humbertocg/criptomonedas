@@ -1,3 +1,9 @@
+/**
+ * api documentation
+ * https://min-api.cryptocompare.com/documentation
+ *
+ * for more info
+ */
 import axios from 'axios';
 
 const axiosConfig = {
