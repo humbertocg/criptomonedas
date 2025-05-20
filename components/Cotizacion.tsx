@@ -33,7 +33,7 @@ const Cotizacion = (props: detailsDisplay) => {
 
 const styles = StyleSheet.create({
   resultado: {
-    backgroundColor: '#5E49E2',
+    backgroundColor: '#FCA503',
     padding: 20,
     marginTop: 15,
   },

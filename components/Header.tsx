@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   encabezado: {
     paddingTop: Platform.OS === 'ios' ? 50 : 10,
     fontFamily: 'Lato-Black',
-    backgroundColor: '#5E49E2',
+    backgroundColor: '#FCA503',
     paddingBottom: 10,
     textAlign: 'center',
     textTransform: 'uppercase',

@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   btnCotizarEnabled: {
-    backgroundColor: '#5E49E2',
+    backgroundColor: '#FCA503',
     padding: 10,
     marginTop: 10,
     alignItems: 'center',

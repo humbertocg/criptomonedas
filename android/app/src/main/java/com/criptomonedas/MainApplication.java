@@ -1,4 +1,4 @@
-package com.criptomonedas;
+package com.humbertocg.criptomonedas;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
